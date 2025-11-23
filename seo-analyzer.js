@@ -54,14 +54,27 @@ async function analyzeSEO(event) {
 
 // API Configuration
 // 从配置文件获取API地址，如果没有则自动检测环境
-const API_BASE_URL = window.API_CONFIG?.apiBaseUrl || (() => {
-    // 自动检测环境
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+const API_BASE_URL = (() => {
+    // 优先使用配置文件
+    if (window.API_CONFIG?.apiBaseUrl) {
+        console.log('Using API config from config.js:', window.API_CONFIG.apiBaseUrl);
+        return window.API_CONFIG.apiBaseUrl;
+    }
+    
+    // 自动检测环境（fallback）
+    const hostname = window.location.hostname;
+    console.log('API_CONFIG not found, detecting environment. Hostname:', hostname);
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
         return 'http://localhost:3000/api';
     }
-    // 生产环境：部署时请修改 config.js 中的 production.apiBaseUrl
-    return 'https://your-backend-domain.com/api';
+    
+    // 生产环境默认值（应该通过config.js配置）
+    console.warn('Using fallback production API URL. Please configure config.js');
+    return 'https://seo-optimizer-pro.onrender.com/api';
 })();
+
+console.log('Final API_BASE_URL:', API_BASE_URL);
 
 // Perform SEO Analysis
 async function performSEOAnalysis(url) {
@@ -89,9 +102,15 @@ async function performSEOAnalysis(url) {
         }
     } catch (error) {
         console.error('API Error:', error);
+        console.error('API_BASE_URL:', API_BASE_URL);
+        console.error('Current hostname:', window.location.hostname);
         // If API is not available, show helpful error message
         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            throw new Error('Unable to connect to SEO analysis service. Please make sure the backend server is running on http://localhost:3000');
+            const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+            const errorMsg = isProd 
+                ? `Unable to connect to SEO analysis service. Please check if the backend API is running at ${API_BASE_URL}`
+                : 'Unable to connect to SEO analysis service. Please make sure the backend server is running on http://localhost:3000';
+            throw new Error(errorMsg);
         }
         throw error;
     }

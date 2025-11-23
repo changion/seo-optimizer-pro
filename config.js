@@ -10,10 +10,9 @@ const CONFIG = {
     // 生产环境API地址（部署时修改为您的实际后端地址）
     production: {
         // ✅ 已配置为您的Render后端URL
+        // ⚠️ 重要：URL必须以 /api 结尾，不能包含 /health
+        // 代码会自动拼接 /analyze-seo，最终URL：https://seo-optimizer-pro.onrender.com/api/analyze-seo
         apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api'
-        
-        // 注意：URL应该以 /api 结尾，代码会自动拼接 /analyze-seo
-        // 完整请求URL会是：https://seo-optimizer-pro.onrender.com/api/analyze-seo
     }
 };
 
