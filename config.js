@@ -4,12 +4,15 @@
 const CONFIG = {
     // 开发环境API地址
     development: {
-        apiBaseUrl: 'https://seo-optimizer-pro.vercel.app/api'
+        apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api/health'
+
     },
     
     // 生产环境API地址（部署时修改为您的实际后端地址）
     production: {
-        apiBaseUrl: 'https://seo-optimizer-pro.vercel.app/api'
+
+        apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api/health'
+
         // 示例：
         // apiBaseUrl: 'https://seo-api-production.up.railway.app/api'
         // apiBaseUrl: 'https://api.yourdomain.com/api'

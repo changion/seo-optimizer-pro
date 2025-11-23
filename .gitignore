@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-package-lock.json
+# package-lock.json - 需要提交，用于部署
 yarn.lock
 
 # Environment variables
@@ -30,3 +30,4 @@ build/
 # Server files
 server/node_modules/
 server/.env
+# server/package-lock.json - 需要提交，用于部署
