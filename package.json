@@ -1,0 +1,32 @@
+{
+  "name": "seo-optimizer-pro",
+  "version": "1.0.0",
+  "description": "SEO Optimizer Pro - AI-powered SEO optimization platform for businesses, marketers, and content creators in the United States",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o",
+    "dev": "npx http-server . -p 8080 -o --cors"
+  },
+  "keywords": [
+    "seo",
+    "search-engine-optimization",
+    "keyword-research",
+    "seo-tools",
+    "content-optimization",
+    "us-region",
+    "localization",
+    "saas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "region": {
+    "country": "United States",
+    "locale": "en-US",
+    "timezone": "America/New_York",
+    "currency": "USD"
+  }
+}
+
