@@ -2,20 +2,18 @@
 
 // API配置
 const CONFIG = {
-    // 开发环境API地址
+    // 开发环境API地址（本地开发时使用）
     development: {
-        apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api/health'
-
+        apiBaseUrl: 'http://localhost:3000/api'
     },
     
     // 生产环境API地址（部署时修改为您的实际后端地址）
     production: {
-
-        apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api/health'
-
-        // 示例：
-        // apiBaseUrl: 'https://seo-api-production.up.railway.app/api'
-        // apiBaseUrl: 'https://api.yourdomain.com/api'
+        // ✅ 已配置为您的Render后端URL
+        apiBaseUrl: 'https://seo-optimizer-pro.onrender.com/api'
+        
+        // 注意：URL应该以 /api 结尾，代码会自动拼接 /analyze-seo
+        // 完整请求URL会是：https://seo-optimizer-pro.onrender.com/api/analyze-seo
     }
 };
 
