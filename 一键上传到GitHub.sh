@@ -124,13 +124,41 @@ git branch -M main 2>/dev/null
 # 推送代码
 echo "📤 推送代码到GitHub..."
 echo ""
-echo "⚠️  如果要求输入密码："
-echo "   - 使用GitHub用户名"
-echo "   - 使用Personal Access Token（不是密码）"
-echo "   - 如何创建Token: https://github.com/settings/tokens"
-echo ""
 
+# 检查是否已设置token
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "⚠️  需要GitHub Token进行认证"
+    echo ""
+    read -sp "请输入您的GitHub Token（输入时不会显示）: " GITHUB_TOKEN
+    echo ""
+    echo ""
+fi
+
+# 如果有token，使用token推送
+if [ -n "$GITHUB_TOKEN" ]; then
+    echo "🔐 使用Token进行认证..."
+    # 使用token设置远程URL
+    GITHUB_USERNAME=$(git config user.name)
+    CURRENT_REMOTE=$(git remote get-url origin 2>/dev/null)
+    if [ -n "$CURRENT_REMOTE" ]; then
+        # 提取仓库名
+        REPO_NAME=$(echo "$CURRENT_REMOTE" | sed 's/.*\///' | sed 's/\.git$//')
+        # 使用token更新远程URL
+        git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${REPO_NAME}.git"
+    fi
+fi
+
+echo "📤 正在推送..."
 git push -u origin main
+
+# 清理token（安全）
+if [ -n "$GITHUB_TOKEN" ]; then
+    # 恢复原始URL（不包含token）
+    CURRENT_REMOTE=$(git remote get-url origin 2>/dev/null | sed "s/${GITHUB_TOKEN}@//")
+    if [ -n "$CURRENT_REMOTE" ]; then
+        git remote set-url origin "$CURRENT_REMOTE"
+    fi
+fi
 
 if [ $? -eq 0 ]; then
     echo ""
