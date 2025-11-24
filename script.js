@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDateTime();
     initializePhoneFormatting();
     setupSmoothScrolling();
+    setupAnalyticsTracking();
 });
 
 // Initialize date and time display
@@ -105,6 +106,88 @@ function setupSmoothScrolling() {
                 });
             }
         });
+    });
+}
+
+// Setup Firebase Analytics tracking for confirmed events
+function setupAnalyticsTracking() {
+    const helper = window.analyticsHelper;
+    if (!helper) {
+        console.warn('Analytics helper 未初始化');
+        return;
+    }
+
+    // E01: Hero CTA
+    const heroAnalysisButton = document.querySelector('.cta-buttons .btn-primary');
+    if (heroAnalysisButton) {
+        heroAnalysisButton.addEventListener('click', () => {
+            helper.trackHeroCta('analysis');
+        });
+    }
+
+    const heroDemoButton = document.querySelector('.cta-buttons .btn-secondary');
+    if (heroDemoButton) {
+        heroDemoButton.addEventListener('click', () => {
+            helper.trackHeroCta('demo');
+        });
+    }
+
+    // E02: Navigation menu
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            const destination = link.getAttribute('href')?.replace('#', '') || 'unknown';
+            helper.trackNavMenu(destination);
+        });
+    });
+
+    // E03: Feature card view (IntersectionObserver)
+    const featureCards = document.querySelectorAll('#features .feature-item');
+    if (featureCards.length && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const title = card.querySelector('h3')?.textContent?.trim() || `feature_${card.dataset.featureIndex}`;
+                    helper.trackFeatureCardView(
+                        title.toLowerCase().replace(/\s+/g, '_'),
+                        Number(card.dataset.featureIndex)
+                    );
+                    obs.unobserve(card);
+                }
+            });
+        }, { threshold: 0.4 });
+
+        featureCards.forEach((card, index) => {
+            card.dataset.featureIndex = index + 1;
+            observer.observe(card);
+        });
+    }
+
+    // E04: Tool CTA clicks
+    document.querySelectorAll('#tools .service-card').forEach(card => {
+        const cta = card.querySelector('a.btn');
+        if (cta) {
+            cta.addEventListener('click', () => {
+                const toolName = (card.querySelector('h3')?.textContent || 'tool')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, '_');
+                helper.trackToolCta(toolName, cta.textContent.trim());
+            });
+        }
+    });
+
+    // E05: Pricing interactions
+    document.querySelectorAll('#pricing .pricing-card').forEach(card => {
+        const button = card.querySelector('button');
+        if (button) {
+            button.addEventListener('click', () => {
+                const planName = card.querySelector('h3')?.textContent?.trim() || 'unknown_plan';
+                const ctaLabel = button.textContent.trim();
+                const billingCycle = card.querySelector('.period')?.textContent?.replace('/', '').trim().toLowerCase() || 'monthly';
+                helper.trackPricingInteraction(planName, ctaLabel, billingCycle);
+            });
+        }
     });
 }
 
