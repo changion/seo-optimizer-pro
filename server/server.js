@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const seoAnalyzer = require('./services/seoAnalyzer');
+const aiContentGenerator = require('./services/aiContentGenerator');
 
 // Load environment variables
 dotenv.config();
@@ -108,6 +109,86 @@ app.post('/api/analyze-seo', async (req, res) => {
         res.status(500).json({
             success: false,
             error: error.message || 'An error occurred while analyzing the website'
+        });
+    }
+});
+
+// AI Content Generation endpoint
+app.post('/api/generate-title-description', async (req, res) => {
+    try {
+        const {
+            type,
+            currentTitle,
+            currentDescription,
+            targetKeyword,
+            pageContent,
+            pageUrl,
+            tone,
+            count
+        } = req.body;
+
+        // Validate type
+        if (!type || !['title', 'description', 'both'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid type. Must be "title", "description", or "both"'
+            });
+        }
+
+        // Validate count
+        const validCount = Math.min(Math.max(parseInt(count) || 3, 3), 5);
+
+        // Prepare options
+        const options = {
+            currentTitle: currentTitle || '',
+            currentDescription: currentDescription || '',
+            targetKeyword: targetKeyword || '',
+            pageContent: pageContent || '',
+            pageUrl: pageUrl || '',
+            tone: tone || 'professional',
+            count: validCount
+        };
+
+        console.log(`Generating AI content: type=${type}, count=${validCount}`);
+
+        let result;
+        if (type === 'title') {
+            result = await aiContentGenerator.generateTitles(options);
+        } else if (type === 'description') {
+            result = await aiContentGenerator.generateDescriptions(options);
+        } else {
+            result = await aiContentGenerator.generateBoth(options);
+        }
+
+        res.json({
+            success: true,
+            data: result
+        });
+
+    } catch (error) {
+        console.error('AI Content Generation Error:', error);
+        
+        // Handle specific error types
+        if (error.message.includes('API key')) {
+            return res.status(500).json({
+                success: false,
+                error: 'AI service not configured. Please set API key in environment variables.',
+                code: 'AI_CONFIG_ERROR'
+            });
+        }
+        
+        if (error.message.includes('timeout')) {
+            return res.status(408).json({
+                success: false,
+                error: 'AI service timeout. Please try again.',
+                code: 'AI_TIMEOUT'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: error.message || 'An error occurred while generating content',
+            code: 'AI_API_ERROR'
         });
     }
 });
